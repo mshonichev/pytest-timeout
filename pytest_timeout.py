@@ -237,9 +237,11 @@ def timeout_setup(item):
 
         def handler(signum, frame):
             __tracebackhide__ = True
+            entire_session = False
             if params.timeout_session:
-                item.shouldfail = f"Timeout >{params.timeout}s"
-            timeout_sigalrm(item, params.timeout)
+                entire_session = True
+                item.shouldfail = f"Session timeout >{params.timeout}s"
+            timeout_sigalrm(item, params.timeout, entire_session)
 
         def cancel():
             signal.setitimer(signal.ITIMER_REAL, 0)
@@ -422,7 +424,7 @@ def _validate_func_only(func_only, where):
     return func_only
 
 
-def timeout_sigalrm(item, timeout):
+def timeout_sigalrm(item, timeout, entire_session):
     """Dump stack of threads and raise an exception.
 
     This will output the stacks of any threads other then the
@@ -438,7 +440,11 @@ def timeout_sigalrm(item, timeout):
     dump_stacks()
     if nthreads > 1:
         write_title("Timeout", sep="+")
-    pytest.fail("Timeout >%ss" % timeout)
+    message = 'Timeout >%ss'
+    if entire_session:
+        message = 'Session timeout >%ss'
+    pytest.fail(message % timeout)
+
 
 
 def timeout_timer(item, timeout):
