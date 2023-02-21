@@ -525,5 +525,5 @@ def test_session_timeout(testdir):
      """
     )
     result = testdir.runpytest("--timeout=1.5", "--timeout-session")
-    result.stdout.fnmatch_lines(["*Failed: Timeout >1.5s*"])
+    result.stdout.fnmatch_lines(["*Failed: Session timeout >1.5s*"])
   
